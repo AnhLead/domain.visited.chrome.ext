@@ -1,0 +1,11 @@
+{
+  "name": "Domain Visited",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description": "Save and store visited pages on a specific domain.",
+  "permissions": ["storage", "tabs"],
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "Domain Visited"
+  }
+}
