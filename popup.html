@@ -1,26 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Domain Visited</title>
-  <script src="popup.js"></script>
   <style>
-    body {
-      min-width: 300px;
-      min-height: 200px;
-      padding: 10px;
-    }
-    li.visited {
+    .visited {
       color: green;
     }
-    li.unvisited {
+    .not-visited {
       color: red;
     }
   </style>
 </head>
 <body>
   <h1>Domain Visited</h1>
-  <input type="text" id="domain" placeholder="Enter domain">
-  <button id="save">Save</button>
-  <ul id="pages"></ul>
+  <p>Enter a domain name:</p>
+  <input type="text" id="domain-input">
+  <button id="save-button">Save</button>
+  <ul id="visited-list"></ul>
+
+  <script src="popup.js"></script>
 </body>
 </html>

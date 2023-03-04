@@ -1,52 +1,44 @@
-function getDomain(url) {
-  return new URL(url).hostname;
-}
+// Get the visited pages from storage and display them in the popup
+chrome.storage.local.get(['visitedPages'], function(result) {
+  const visitedPages = result.visitedPages || {};
+  const visitedList = document.getElementById('visited-list');
 
-function savePage(domain, url) {
-  chrome.storage.local.get(domain, function(data) {
-    if (!data[domain]) {
-      data[domain] = [];
+  for (const [url, visited] of Object.entries(visitedPages)) {
+    const listItem = document.createElement('li');
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.innerHTML = url;
+    listItem.appendChild(link);
+    if (visited) {
+      listItem.classList.add('visited');
+    } else {
+      listItem.classList.add('not-visited');
     }
-    if (!data[domain].includes(url)) {
-      data[domain].push(url);
-    }
-    chrome.storage.local.set(data);
-  });
-}
+    visitedList.appendChild(listItem);
+  }
+});
 
-function renderPages(domain) {
-  chrome.storage.local.get(domain, function(data) {
-    var pagesList = document.getElementById("pages");
-    pagesList.innerHTML = "";
-    if (data[domain]) {
-      for (var i = 0; i < data[domain].length; i++) {
-        var page = data[domain][i];
-        var listItem = document.createElement("li");
-        listItem.textContent = page;
-        if (chrome.history.search({text: page}, function(results) {
-          if (results.length > 0) {
-            listItem.classList.add("visited");
-          } else {
-            listItem.classList.add("unvisited");
-          }
-        }));
-        pagesList.appendChild(listItem);
+// Save the visited pages when the user clicks the save button
+document.getElementById('save-button').addEventListener('click', function() {
+  const domain = document.getElementById('domain-input').value;
+  const regex = new RegExp(`^https?:\/\/(www\.)?${domain}\/`);
+  const visitedPages = {};
+
+  // Get all the tabs that match the domain regex
+  chrome.tabs.query({currentWindow: true}, function(tabs) {
+    for (const tab of tabs) {
+      if (regex.test(tab.url)) {
+        visitedPages[tab.url] = true;
       }
     }
-  });
-}
 
-document.addEventListener("DOMContentLoaded", function() {
-  var saveButton = document.getElementById("save");
-  saveButton.addEventListener("click", function() {
-    var domain = document.getElementById("domain").value;
-    if (domain) {
-      chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
-        var url = tabs[0].url;
-        var domain = getDomain(url);
-        savePage(domain, url);
-        renderPages(domain);
-      });
-    }
+    // Save the visited pages to storage
+    chrome.storage.local.set({visitedPages: visitedPages}, function() {
+      console.log('Visited pages saved');
+    });
+
+    // Refresh the popup to display the updated visited pages
+    window.location.reload();
   });
 });
